@@ -3,15 +3,17 @@ package main
 import (
 	"./model"
 	"fmt"
-	// "runtime"
+	"os"
+	"runtime"
 )
 
 func main() {
+	saveDir := "./pics/"
+	os.Mkdir(saveDir, 0777)
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	fmt.Print("start=====\n")
 	taskManager := model.NewInstance(10)
-	//task := &model.PrintTask{Text: "hello"}
-	task := model.NewFetchTaskInstance(1, 10, "c:\\temp\\")
+	task := model.NewFetchTaskInstance(1, 10, saveDir)
 	taskManager.AddTask(task)
 	taskManager.Run()
 	var str, str1 string
