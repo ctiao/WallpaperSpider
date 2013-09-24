@@ -58,7 +58,6 @@ func (this *FetchTask) Run() {
 		for _, url := range urls {
 			this.manager.AddTask(NewDownloadTaskInstance(url, this.saveDir))
 		}
-		time.Sleep(time.Second)
 	}
 	fmt.Println("Fetch end")
 }
