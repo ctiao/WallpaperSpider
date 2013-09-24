@@ -59,7 +59,8 @@ func (this *FetchTask) Run() {
 			this.manager.AddTask(NewDownloadTaskInstance(url, this.saveDir))
 		}
 	}
-	fmt.Println("Fetch end")
+	time.Sleep(time.Minute)
+	fmt.Println("Fetch end==========================")
 }
 
 func (this *FetchTask) getThumbImgUrls(content string) (urls []string, err error) {
