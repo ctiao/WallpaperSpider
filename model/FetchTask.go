@@ -5,12 +5,27 @@ import (
 	"io/ioutil"
 	"net/http"
 	"regexp"
+	"strings"
+	"time"
+)
+
+const (
+	URL_FORMAT          = "http://wallbase.cc/toplist/index/%d?section=wallpapers&q=&res_opt=eqeq&res=0x0&thpp=32&purity=100&board=1&aspect=0.00&ts=3d"
+	PAGE_SIZE           = 32
+	URL_REPLACEMENT_OLD = "http://thumbs.wallbase.cc//manga-anime/thumb-"
+	URL_REPLACEMENT_NEW = "http://wallpapers.wallbase.cc/manga-anime/wallpaper-"
 )
 
 type FetchTask struct {
 	startPage int
 	endPage   int
+	saveDir   string
 	manager   *TaskManager
+}
+
+func NewFetchTaskInstance(sp int, ep int, dir string) *FetchTask {
+	task := &FetchTask{startPage: sp, endPage: ep, saveDir: dir}
+	return task
 }
 
 func (this *FetchTask) SetManager(manager *TaskManager) {
@@ -24,13 +39,26 @@ func (this *FetchTask) Run() {
 		fmt.Println(url)
 		content, err := this.getHTML(url)
 		if err != nil {
+			fmt.Println("error:", err)
 			continue
 		}
+		if this.saveDir == "" {
+			return
+		}
+
 		//保存处理内容
 		//fmt.Println(content)
-		this.getThumbImgUrls(content)
+		urls, err := this.getThumbImgUrls(content)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
 
 		//开启图片下载任务
+		for _, url := range urls {
+			this.manager.AddTask(NewDownloadTaskInstance(url, this.saveDir))
+		}
+		time.Sleep(time.Second)
 	}
 	fmt.Println("Fetch end")
 }
@@ -41,17 +69,14 @@ func (this *FetchTask) getThumbImgUrls(content string) (urls []string, err error
 		return
 	}
 	urlArr := re.FindAllSubmatch([]byte(content), -1)
-	//fmt.Println(urlArr)
 	if urlArr == nil || len(urlArr) == 0 {
 		return
 	}
 	length := len(urlArr)
 	urls = make([]string, length)
 	for k, v := range urlArr {
-		//fmt.Printf("%d,%v\n\n", k, string(v[1]))
-		urls[k] = string(v[1])
+		urls[k] = strings.Trim(strings.Replace(string(v[1]), URL_REPLACEMENT_OLD, URL_REPLACEMENT_NEW, -1))
 	}
-	fmt.Println(urls)
 	return
 }
 
@@ -79,15 +104,7 @@ func (this *FetchTask) getHTML(url string) (content string, err error) {
 	return
 }
 
-var URL_FORMAT = "http://wallbase.cc/toplist/index/%d?section=wallpapers&q=&res_opt=eqeq&res=0x0&thpp=32&purity=100&board=1&aspect=0.00&ts=3d"
-var PAGE_SIZE = 32
-
 func (this *FetchTask) nextUrl(page int) string {
 	url := fmt.Sprintf(URL_FORMAT, PAGE_SIZE*(page-1))
 	return url
-}
-
-func NewFetchTaskInstance(sp int, ep int) *FetchTask {
-	task := &FetchTask{startPage: sp, endPage: ep}
-	return task
 }

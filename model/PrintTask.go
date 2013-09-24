@@ -15,7 +15,7 @@ func (this *PrintTask) SetManager(manager *TaskManager) {
 
 func (this *PrintTask) Run() {
 	str := fmt.Sprintf("PrintTask.Run()  %v", &this)
-	//fmt.Println(str)
+	fmt.Println(str)
 	if this.manager == nil {
 		return
 	}

@@ -3,15 +3,15 @@ package main
 import (
 	"./model"
 	"fmt"
-	"runtime"
+	// "runtime"
 )
 
 func main() {
-	runtime.GOMAXPROCS(runtime.NumCPU())
+	//runtime.GOMAXPROCS(runtime.NumCPU())
 	fmt.Print("start=====\n")
-	taskManager := model.NewInstance(4)
-	//task := model.PrintTask{Text: "hello"}
-	task := model.NewFetchTaskInstance(1, 10)
+	taskManager := model.NewInstance(5)
+	//task := &model.PrintTask{Text: "hello"}
+	task := model.NewFetchTaskInstance(1, 10, "c:\\temp\\")
 	taskManager.AddTask(task)
 	fmt.Printf("end=====%v\n", taskManager)
 	taskManager.Run()
