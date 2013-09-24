@@ -75,7 +75,7 @@ func (this *FetchTask) getThumbImgUrls(content string) (urls []string, err error
 	length := len(urlArr)
 	urls = make([]string, length)
 	for k, v := range urlArr {
-		urls[k] = strings.Trim(strings.Replace(string(v[1]), URL_REPLACEMENT_OLD, URL_REPLACEMENT_NEW, -1))
+		urls[k] = strings.TrimSpace(strings.Replace(string(v[1]), URL_REPLACEMENT_OLD, URL_REPLACEMENT_NEW, -1))
 	}
 	return
 }

@@ -9,7 +9,7 @@ import (
 func main() {
 	//runtime.GOMAXPROCS(runtime.NumCPU())
 	fmt.Print("start=====\n")
-	taskManager := model.NewInstance(5)
+	taskManager := model.NewInstance(3)
 	//task := &model.PrintTask{Text: "hello"}
 	task := model.NewFetchTaskInstance(1, 10, "c:\\temp\\")
 	taskManager.AddTask(task)
