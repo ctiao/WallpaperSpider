@@ -17,9 +17,9 @@ func main() {
 	taskManager.Run()
 	var str, str1 string
 	fmt.Scanf("%s%s", &str, &str1)
-	if str == "s" || str == "S" {
+	if str == "q" || str == "Q" {
 		taskManager.Stop()
 		fmt.Println("taskManager stop")
 	}
-	fmt.Scanln(&str1)
+	//fmt.Scanln(&str1)
 }
