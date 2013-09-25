@@ -22,5 +22,9 @@ _testmain.go
 *.exe
 
 docs/*
+<<<<<<< HEAD
 test.*
 pics/*
+=======
+test.*
+>>>>>>> 1810bea7d9b39666ded620f5e19308678a8db2e2
