@@ -34,7 +34,7 @@ func (this *FetchTask) SetManager(manager *TaskManager) {
 
 func (this *FetchTask) Run() {
 	for p := this.startPage; p <= this.endPage; p++ {
-		fmt.Println("======================fetch=====================")
+		fmt.Println(p, "======================fetch=====================")
 		url := this.nextUrl(p)
 		fmt.Println(url)
 		content, err := this.getHTML(url)
