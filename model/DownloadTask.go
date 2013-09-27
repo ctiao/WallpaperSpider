@@ -61,11 +61,18 @@ func (this *DownloadTask) Run() {
 func dialTimeout(network, addr string) (net.Conn, error) {
 
 	conn, _ := net.DialTimeout(network, addr, g_dialTimeout)
-	conn.SetDeadline(time.Now().Add(time.Minute * 2))
+	//conn.SetDeadline(time.Now().Add(time.Minute * 2))
 	return conn, nil
 }
 
 func (this *DownloadTask) downloadFile(url string, savePath string) error {
+
+	defer func() {
+		if err := recover(); err != nil {
+
+		}
+	}()
+
 	e := Exists(savePath)
 	if e {
 		fmt.Println("文件已存在,跳过")

@@ -45,11 +45,13 @@ func (this *TaskManager) AddTask(task Task) {
 }
 
 func (this *TaskManager) Stop() {
+	if this.pool != nil {
+		close(this.pool)
+		this.pool = nil
+	}
 	if this.channel != nil {
 		close(this.channel)
 		this.channel = nil
-		close(this.pool)
-		this.pool = nil
 	}
 }
 
