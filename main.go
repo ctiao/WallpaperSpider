@@ -37,7 +37,7 @@ func main() {
 	os.Mkdir(saveDir, 0777)
 
 	fmt.Print("start=====\n")
-	taskManager := model.NewInstance(4)
+	taskManager := model.NewInstance(15)
 	task := model.NewFetchTaskInstance(startPage, endPage, saveDir)
 	//task := &model.PrintTask{Text: "start!!!!!!!!!"}
 
