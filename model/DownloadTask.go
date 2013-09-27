@@ -161,6 +161,9 @@ func (this *DownloadTask) downloadFile(url string, savePath string) error {
 	var readed int
 	for {
 		readed, err = in.Read(pbytes)
+		if err != nil && err != io.EOF {
+			break
+		}
 		fmt.Print("======", readed)
 		if readed > 0 {
 			written, err1 := out.Write(pbytes[:readed])
