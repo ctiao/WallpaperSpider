@@ -20,6 +20,7 @@ func convertToInteger(str string, defVal int) int {
 }
 
 func main() {
+	//runtime.GOMAXPROCS(runtime.NumCPU())
 
 	args := os.Args[1:]
 	var startPage = 1
@@ -34,10 +35,12 @@ func main() {
 
 	saveDir := "./pics/"
 	os.Mkdir(saveDir, 0777)
-	//runtime.GOMAXPROCS(runtime.NumCPU())
+
 	fmt.Print("start=====\n")
-	taskManager := model.NewInstance(10)
+	taskManager := model.NewInstance(4)
 	task := model.NewFetchTaskInstance(startPage, endPage, saveDir)
+	//task := &model.PrintTask{Text: "start!!!!!!!!!"}
+
 	taskManager.AddTask(task)
 	taskManager.Run()
 	var str, str1 string

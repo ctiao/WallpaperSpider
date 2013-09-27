@@ -58,10 +58,13 @@ func (this *FetchTask) Run() {
 		}
 
 		//开启图片下载任务
-		for _, url := range urls {
-			fmt.Println(":::", url)
-			this.manager.AddTask(NewDownloadTaskInstance(url, this.saveDir))
-		}
+		func() {
+			for _, url := range urls {
+				fmt.Println(":::", url)
+				this.manager.AddTask(NewDownloadTaskInstance(url, this.saveDir))
+			}
+		}()
+
 	}
 	//time.Sleep(time.Minute)
 	fmt.Println("Fetch end==========================")

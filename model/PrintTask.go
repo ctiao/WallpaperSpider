@@ -2,6 +2,8 @@ package model
 
 import (
 	"fmt"
+	"math/rand"
+	"time"
 )
 
 type PrintTask struct {
@@ -14,15 +16,26 @@ func (this *PrintTask) SetManager(manager *TaskManager) {
 }
 
 func (this *PrintTask) Run() {
-	str := fmt.Sprintf("PrintTask.Run()  %v", &this)
+	s := time.Duration(rand.Intn(120))
+	str := fmt.Sprintf("PrintTask.Run() %ds  %v", s, &this)
 	fmt.Println(str)
 	if this.manager == nil {
 		return
 	}
-	newTask := &PrintTask{Text: str}
-	for i := 1; i < 5; i++ {
-		this.manager.AddTask(newTask)
-	}
+
+	go func() {
+		for i := 1; i < 32; i++ {
+			fmt.Println(i)
+			newTask := new(PrintTask)
+			newTask.Text = fmt.Sprintln("task:", i)
+			this.manager.AddTask(newTask)
+		}
+	}()
+
+	// select {
+	// case <-time.After(3 * time.Second):
+	// 	//fmt.Println("time out")
+	// }
 }
 
 func (this *PrintTask) Cancel() {
