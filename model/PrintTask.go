@@ -24,3 +24,7 @@ func (this *PrintTask) Run() {
 		this.manager.AddTask(newTask)
 	}
 }
+
+func (this *PrintTask) Cancel() {
+
+}

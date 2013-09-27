@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
-	"time"
 )
 
 const (
@@ -17,14 +16,18 @@ const (
 )
 
 type FetchTask struct {
-	startPage int
-	endPage   int
-	saveDir   string
-	manager   *TaskManager
+	startPage  int
+	endPage    int
+	saveDir    string
+	manager    *TaskManager
+	cancelFlag bool
 }
 
 func NewFetchTaskInstance(sp int, ep int, dir string) *FetchTask {
-	task := &FetchTask{startPage: sp, endPage: ep, saveDir: dir}
+	task := new(FetchTask)
+	task.startPage = sp
+	task.endPage = ep
+	task.saveDir = dir
 	return task
 }
 
@@ -56,10 +59,11 @@ func (this *FetchTask) Run() {
 
 		//开启图片下载任务
 		for _, url := range urls {
+			fmt.Println(":::", url)
 			this.manager.AddTask(NewDownloadTaskInstance(url, this.saveDir))
 		}
 	}
-	time.Sleep(time.Minute)
+	//time.Sleep(time.Minute)
 	fmt.Println("Fetch end==========================")
 }
 
@@ -107,4 +111,8 @@ func (this *FetchTask) getHTML(url string) (content string, err error) {
 func (this *FetchTask) nextUrl(page int) string {
 	url := fmt.Sprintf(URL_FORMAT, PAGE_SIZE*(page-1))
 	return url
+}
+
+func (this *FetchTask) Cancel() {
+	this.cancelFlag = true
 }

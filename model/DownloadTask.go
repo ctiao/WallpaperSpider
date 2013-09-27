@@ -13,25 +13,29 @@ import (
 )
 
 const (
-	KB      = 1024
-	ext     = ".jpg"
-	ext_png = ".png"
-	ext_tmp = ".tmp"
-	UA      = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.76 Safari/537.36"
+	g_dialTimeout = time.Duration(time.Second * 60)
+	KB            = 1024
+	BUFFER_SIZE   = KB * 20
+	ext           = ".jpg"
+	ext_png       = ".png"
+	ext_tmp       = ".tmp"
+	UA            = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.76 Safari/537.36"
 )
 
 var coder = base64.StdEncoding
 
 type DownloadTask struct {
-	url      string
-	savePath string
-	manager  *TaskManager
+	url        string
+	savePath   string
+	manager    *TaskManager
+	cancelFlag bool
 }
 
-func NewDownloadTaskInstance(url string, dir string) *DownloadTask {
-	task := &DownloadTask{}
-	task.url = url
-	task.savePath = fmt.Sprintf("%s%s%s", dir, coder.EncodeToString([]byte(url)), ext)
+func NewDownloadTaskInstance(u string, dir string) *DownloadTask {
+	task := new(DownloadTask)
+	task.cancelFlag = false
+	task.url = u
+	task.savePath = fmt.Sprintf("%s%s%s", dir, coder.EncodeToString([]byte(task.url)), ext)
 	return task
 }
 
@@ -55,28 +59,47 @@ func (this *DownloadTask) Run() {
 }
 
 func dialTimeout(network, addr string) (net.Conn, error) {
-	return net.DialTimeout(network, addr, time.Minute)
+
+	conn, _ := net.DialTimeout(network, addr, g_dialTimeout)
+	conn.SetDeadline(time.Now().Add(time.Minute * 2))
+	return conn, nil
 }
 
 func (this *DownloadTask) downloadFile(url string, savePath string) error {
-	e, err := exists(savePath)
+	e := Exists(savePath)
 	if e {
+		fmt.Println("文件已存在,跳过")
 		return nil
 	}
 
+	fmt.Println(url)
+
 	tmpName := fmt.Sprintf("%s%s", savePath, ext_tmp)
 
-	if e, _ := exists(tmpName); e {
-		os.Remove(tmpName)
-	}
+	// if Exists(tmpName) {
+	// 	os.Remove(tmpName)
+	// }
+
+	var err error
+	var out *os.File
+	var in io.ReadCloser
 
 	//删除报错文件
 	defer func() {
+		if in != nil {
+			in.Close()
+		}
+		if out != nil {
+			out.Close()
+		}
 		if err != nil {
-			fmt.Println("remove file", savePath, err)
-			os.Remove(tmpName)
+			if Exists(tmpName) {
+				err1 := os.Remove(tmpName)
+				fmt.Println("下载失败,remove file", tmpName, err1)
+			}
 		} else {
-			os.Rename(tmpName, savePath)
+			err1 := os.Rename(tmpName, savePath)
+			fmt.Println("下载成功", savePath, err1)
 		}
 	}()
 
@@ -98,40 +121,79 @@ func (this *DownloadTask) downloadFile(url string, savePath string) error {
 	if err != nil {
 		return err
 	}
-	defer res.Body.Close()
+	in = res.Body
+	defer func() {
+		if in != nil {
+			in.Close()
+			in = nil
+		}
+	}()
 
-	out, err := os.Create(tmpName)
+	if res.StatusCode != 200 || res.ContentLength == -1 {
+		err = errors.New("网络文件不存在")
+		return err
+	}
+
+	//创建临时文件
+	out, err = os.OpenFile(tmpName, os.O_CREATE|os.O_WRONLY, 0777)
 	if err != nil {
 		return err
 	}
 	defer func() {
-		out.Close()
-		out = nil
+		if out != nil {
+			out.Close()
+			out = nil
+		}
 	}()
 
-	var length int64 = 0
-	length, err = io.Copy(out, res.Body)
+	length, err := io.Copy(out, res.Body)
 
-	if err != nil {
-		fmt.Println("io Copy error", length, res.ContentLength)
-		return err
-	}
+	// pbytes := make([]byte, BUFFER_SIZE)
 
-	if length < KB*3 || length != res.ContentLength {
+	// var length int64 = 0
+	// var readed int
+	// for {
+	// 	readed, err = in.Read(pbytes)
+	// 	fmt.Print("======", readed)
+	// 	if readed > 0 {
+	// 		written, err1 := out.Write(pbytes[:readed])
+	// 		length += int64(written)
+	// 		if err1 != nil {
+	// 			fmt.Println(err1)
+	// 			break
+	// 		}
+	// 	}
+	// 	if readed == 0 || err == io.EOF {
+	// 		err = nil
+	// 		break
+	// 	}
+	// 	if this.cancelFlag {
+	// 		break
+	// 	}
+	// }
+
+	if err != nil || length < KB*3 || length != res.ContentLength {
 		err = errors.New(fmt.Sprintf("%s,length:%d/%d", url, length, res.ContentLength))
-		return err
 	}
 
+	fmt.Println(length, res.ContentLength)
+	out.Close()
+	out = nil
+	in.Close()
+	in = nil
 	return err
 }
 
-func exists(path string) (bool, error) {
-	_, err := os.Stat(path)
-	if err == nil {
-		return true, nil
+// Exists reports whether the named file or directory exists.
+func Exists(name string) bool {
+	if _, err := os.Stat(name); err != nil {
+		if os.IsNotExist(err) {
+			return false
+		}
 	}
-	if os.IsNotExist(err) {
-		return false, nil
-	}
-	return false, err
+	return true
+}
+
+func (this *DownloadTask) Cancel() {
+	this.cancelFlag = true
 }
