@@ -29,9 +29,7 @@ func NewInstance(size int) *TaskManager {
 
 func (this *TaskManager) AddTask(task Task) {
 	defer func() {
-		if err := recover(); err != nil {
-			this.Stop()
-		}
+		recover()
 	}()
 	if this.channel == nil || this.pool == nil {
 		return
@@ -45,13 +43,13 @@ func (this *TaskManager) AddTask(task Task) {
 }
 
 func (this *TaskManager) Stop() {
-	if this.pool != nil {
-		close(this.pool)
-		this.pool = nil
-	}
 	if this.channel != nil {
 		close(this.channel)
 		this.channel = nil
+	}
+	if this.pool != nil {
+		close(this.pool)
+		this.pool = nil
 	}
 }
 

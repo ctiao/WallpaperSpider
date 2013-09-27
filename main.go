@@ -4,7 +4,7 @@ import (
 	"./model"
 	"fmt"
 	"os"
-	"runtime"
+	//"runtime"
 	"strconv"
 )
 
@@ -34,7 +34,7 @@ func main() {
 
 	saveDir := "./pics/"
 	os.Mkdir(saveDir, 0777)
-	runtime.GOMAXPROCS(runtime.NumCPU())
+	//runtime.GOMAXPROCS(runtime.NumCPU())
 	fmt.Print("start=====\n")
 	taskManager := model.NewInstance(10)
 	task := model.NewFetchTaskInstance(startPage, endPage, saveDir)

@@ -153,31 +153,31 @@ func (this *DownloadTask) downloadFile(url string, savePath string) error {
 		}
 	}()
 
-	length, err := io.Copy(out, res.Body)
+	// length, err := io.Copy(out, res.Body)
 
-	// pbytes := make([]byte, BUFFER_SIZE)
+	pbytes := make([]byte, BUFFER_SIZE)
 
-	// var length int64 = 0
-	// var readed int
-	// for {
-	// 	readed, err = in.Read(pbytes)
-	// 	fmt.Print("======", readed)
-	// 	if readed > 0 {
-	// 		written, err1 := out.Write(pbytes[:readed])
-	// 		length += int64(written)
-	// 		if err1 != nil {
-	// 			fmt.Println(err1)
-	// 			break
-	// 		}
-	// 	}
-	// 	if readed == 0 || err == io.EOF {
-	// 		err = nil
-	// 		break
-	// 	}
-	// 	if this.cancelFlag {
-	// 		break
-	// 	}
-	// }
+	var length int64 = 0
+	var readed int
+	for {
+		readed, err = in.Read(pbytes)
+		fmt.Print("======", readed)
+		if readed > 0 {
+			written, err1 := out.Write(pbytes[:readed])
+			length += int64(written)
+			if err1 != nil {
+				fmt.Println(err1)
+				break
+			}
+		}
+		if readed == 0 || err == io.EOF {
+			err = nil
+			break
+		}
+		if this.cancelFlag {
+			break
+		}
+	}
 
 	if err != nil || length < KB*3 || length != res.ContentLength {
 		err = errors.New(fmt.Sprintf("%s,length:%d/%d", url, length, res.ContentLength))
