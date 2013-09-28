@@ -60,10 +60,9 @@ func (this *DownloadTask) Run() {
 }
 
 func dialTimeout(network, addr string) (net.Conn, error) {
-
-	conn, _ := net.DialTimeout(network, addr, g_dialTimeout)
+	// conn, err := net.DialTimeout(network, addr, g_dialTimeout)
 	//conn.SetDeadline(time.Now().Add(time.Minute * 2))
-	return conn, nil
+	return net.DialTimeout(network, addr, g_dialTimeout)
 }
 
 func (this *DownloadTask) downloadFile(url string, savePath string) error {
