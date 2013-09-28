@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	g_dialTimeout = time.Duration(time.Second * 60)
+	g_dialTimeout = time.Duration(time.Second * 120)
 	KB            = 1024
 	BUFFER_SIZE   = KB * 20
 	ext           = ".jpg"
@@ -68,8 +68,8 @@ func dialTimeout(network, addr string) (net.Conn, error) {
 func (this *DownloadTask) downloadFile(url string, savePath string) error {
 
 	defer func() {
-		if err := recover(); err != nil {
-
+		if ret := recover(); ret != nil {
+			fmt.Println("somethins wrong,recovered from downloading file")
 		}
 	}()
 
@@ -83,9 +83,9 @@ func (this *DownloadTask) downloadFile(url string, savePath string) error {
 
 	tmpName := fmt.Sprintf("%s%s", savePath, ext_tmp)
 
-	// if Exists(tmpName) {
-	// 	os.Remove(tmpName)
-	// }
+	if Exists(tmpName) {
+		os.Remove(tmpName)
+	}
 
 	var err error
 	var out *os.File
@@ -154,7 +154,6 @@ func (this *DownloadTask) downloadFile(url string, savePath string) error {
 	}()
 
 	// length, err := io.Copy(out, res.Body)
-
 	pbytes := make([]byte, BUFFER_SIZE)
 
 	var length int64 = 0
@@ -164,7 +163,6 @@ func (this *DownloadTask) downloadFile(url string, savePath string) error {
 		if err != nil && err != io.EOF {
 			break
 		}
-		fmt.Print("======", readed)
 		if readed > 0 {
 			written, err1 := out.Write(pbytes[:readed])
 			length += int64(written)
@@ -186,11 +184,15 @@ func (this *DownloadTask) downloadFile(url string, savePath string) error {
 		err = errors.New(fmt.Sprintf("%s,length:%d/%d", url, length, res.ContentLength))
 	}
 
-	fmt.Println(length, res.ContentLength)
-	out.Close()
-	out = nil
-	in.Close()
-	in = nil
+	if in != nil {
+		in.Close()
+		in = nil
+	}
+	if out != nil {
+		out.Close()
+		out = nil
+	}
+
 	return err
 }
 
