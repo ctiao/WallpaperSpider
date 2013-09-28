@@ -1,7 +1,7 @@
 package main
 
 import (
-	"./model"
+	"./taskpool"
 	"fmt"
 	"os"
 	//"runtime"
@@ -37,9 +37,9 @@ func main() {
 	os.Mkdir(saveDir, 0777)
 
 	fmt.Print("start=====\n")
-	taskManager := model.NewInstance(15)
-	task := model.NewFetchTaskInstance(startPage, endPage, saveDir)
-	//task := &model.PrintTask{Text: "start!!!!!!!!!"}
+	taskManager := taskpool.NewInstance(15)
+	task := taskpool.NewFetchTaskInstance(startPage, endPage, saveDir)
+	//task := &taskpool.PrintTask{Text: "start!!!!!!!!!"}
 
 	taskManager.AddTask(task)
 	taskManager.Run()
