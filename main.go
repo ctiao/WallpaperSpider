@@ -40,7 +40,6 @@ func main() {
 	taskManager := task.NewInstance(15)
 	task := task.NewFetchTaskInstance(startPage, endPage, saveDir)
 	//task := &task.PrintTask{Text: "start!!!!!!!!!"}
-
 	taskManager.AddTask(task)
 	taskManager.Run()
 	var str, str1 string
