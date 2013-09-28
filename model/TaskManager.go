@@ -61,8 +61,8 @@ func (this *TaskManager) Run() {
 			go func() {
 				task.Run()
 				this.count--
-				<-this.pool
 				fmt.Println("task count", this.count)
+				<-this.pool
 			}()
 		}
 	}()
