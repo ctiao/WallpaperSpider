@@ -25,6 +25,7 @@ const (
 var coder = base64.StdEncoding
 
 type DownloadTask struct {
+	ImplTask
 	url        string
 	savePath   string
 	manager    *TaskManager

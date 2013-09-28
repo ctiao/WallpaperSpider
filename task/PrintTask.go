@@ -7,6 +7,7 @@ import (
 )
 
 type PrintTask struct {
+	ImplTask
 	manager *TaskManager
 	Text    string
 }

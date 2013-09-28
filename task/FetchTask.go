@@ -16,6 +16,7 @@ const (
 )
 
 type FetchTask struct {
+	ImplTask
 	startPage  int
 	endPage    int
 	saveDir    string
